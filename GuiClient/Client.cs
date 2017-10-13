@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.ServiceModel;
+using System.Threading.Tasks;
 using ChatService;
 using Helpers;
 
@@ -13,12 +15,19 @@ namespace GuiClient
         public string PassPhrase { get; set; }
         private int _id;
         private IServer _channel;
+        private IFileService _fileChannel;
 
         public delegate void MessageIcomeHandler(int userId, string username, string msg);
-        public event MessageIcomeHandler MessageIncomeEvent;
-        public delegate void NewUserJoinedHandler(int userId);
-        public event NewUserJoinedHandler NewUserJoinedEvent;
 
+        public event MessageIcomeHandler MessageIncomeEvent;
+
+        public delegate void FileIcomeHandler(int userId, string username, string originalFileName, string cryptedfileName);
+
+        public event FileIcomeHandler FileIncomeEvent;
+
+        public delegate void NewUserJoinedHandler(int userId);
+
+        public event NewUserJoinedHandler NewUserJoinedEvent;
 
 
         public Client(string name, string passPhrase)
@@ -27,12 +36,33 @@ namespace GuiClient
             PassPhrase = passPhrase;
 
             DuplexChannelFactory<IServer> channelFactory = new DuplexChannelFactory<IServer>(this,
-                new NetTcpBinding() {Security = new NetTcpSecurity() {Mode = SecurityMode.None}},
+                new NetTcpBinding()
+                {
+                    Security = new NetTcpSecurity() {Mode = SecurityMode.None},
+                },
                 new EndpointAddress("net.tcp://192.168.1.75:3100/CryptedChat"));
             _channel = channelFactory.CreateChannel();
 
+
+            ChannelFactory<IFileService> fileChannelFactory =  new ChannelFactory<IFileService>(new NetTcpBinding()
+            {
+                Security = new NetTcpSecurity()
+                {
+                    Mode = SecurityMode.None
+                },
+                MaxBufferSize = Int32.MaxValue,
+                MaxReceivedMessageSize = Int32.MaxValue,
+                TransferMode = TransferMode.Streamed,
+                CloseTimeout = new TimeSpan(0, 1, 0),
+                OpenTimeout = new TimeSpan(0, 1, 0),
+                ReceiveTimeout = new TimeSpan(0, 30, 0),
+                SendTimeout = new TimeSpan(0, 30, 0)
+            },new EndpointAddress("net.tcp://192.168.1.75:3101/CryptedChatFiles"));
+            _fileChannel = fileChannelFactory.CreateChannel();
+
+
             _id = _channel.Register(Name);
-            
+
             SendHelloMessage();
         }
 
@@ -57,8 +87,33 @@ namespace GuiClient
                 Content = text
             });
             _channel.BroadcastMessageToConnectedUsers(Cipher.Encrypt(jsonMsg, PassPhrase));
-            MessageIncomeEvent?.Invoke(_id,Name,text); 
+            MessageIncomeEvent?.Invoke(_id, Name, text);
         }
+
+        public Task<string> UploadFile(Stream file)
+        {
+            return Task.Run(() => _fileChannel.UploadFile(file));
+        }
+
+        public Task<Stream> DownloadFile(string fileName)
+        {
+            return Task.Run(() => _fileChannel.DownloadFile(fileName));
+        }
+
+        public void SendFileToConnected(string originalFileName, string cryptedFileName)
+        {
+            var jsonMsg = Message.Serialize(new Message()
+            {
+                SenderUserName = Name,
+                SenderUserId = _id,
+                Type = MessageType.FileMessage,
+                Content = originalFileName,
+                AdditionalData = cryptedFileName,
+            });
+            _channel.BroadcastMessageToConnectedUsers(Cipher.Encrypt(jsonMsg, PassPhrase));
+            MessageIncomeEvent?.Invoke(_id, Name, $"You sended file: {originalFileName}");
+        }
+
 
         private void SendUnconnectMessage()
         {
@@ -121,6 +176,7 @@ namespace GuiClient
                     _channel.ConnectWithUser(msg.SenderUserId);
                     break;
                 case MessageType.FileMessage:
+                    FileIncomeEvent?.Invoke(msg.SenderUserId, msg.SenderUserName, msg.Content, msg.AdditionalData);
                     break;
                 default:
                     break;

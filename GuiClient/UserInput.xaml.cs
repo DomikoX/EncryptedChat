@@ -14,6 +14,7 @@ namespace GuiClient
         {
             InitializeComponent();
             Label.Content = inputLabel;
+            FocusManager.SetFocusedElement(this, TextBox);
             Closing += (sender, args) =>
             {
                 if (string.IsNullOrEmpty(TextBox.Text.Trim())) args.Cancel = true;

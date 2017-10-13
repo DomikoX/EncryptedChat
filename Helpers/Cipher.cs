@@ -7,7 +7,8 @@ using System.Linq;
 namespace Helpers
 {
     public static class Cipher
-    { // This constant is used to determine the keysize of the encryption algorithm in bits.
+    {
+        // This constant is used to determine the keysize of the encryption algorithm in bits.
         // We divide this by 8 within the code below to get the equivalent number of bytes.
         private const int Keysize = 256;
 
@@ -51,6 +52,7 @@ namespace Helpers
             }
         }
 
+
         public static string Decrypt(string cipherText, string passPhrase)
         {
             // Get the complete stream of bytes that represent:
@@ -61,7 +63,8 @@ namespace Helpers
             // Get the IV bytes by extracting the next 32 bytes from the supplied cipherText bytes.
             var ivStringBytes = cipherTextBytesWithSaltAndIv.Skip(Keysize / 8).Take(Keysize / 8).ToArray();
             // Get the actual cipher text bytes by removing the first 64 bytes from the cipherText string.
-            var cipherTextBytes = cipherTextBytesWithSaltAndIv.Skip((Keysize / 8) * 2).Take(cipherTextBytesWithSaltAndIv.Length - ((Keysize / 8) * 2)).ToArray();
+            var cipherTextBytes = cipherTextBytesWithSaltAndIv.Skip((Keysize / 8) * 2)
+                .Take(cipherTextBytesWithSaltAndIv.Length - ((Keysize / 8) * 2)).ToArray();
 
             using (var password = new Rfc2898DeriveBytes(passPhrase, saltStringBytes, DerivationIterations))
             {
@@ -88,6 +91,97 @@ namespace Helpers
                 }
             }
         }
+
+
+        public static void EncryptFile(string inputFilePath, string outputFilePath, string passPhrase)
+        {
+            // Salt and IV is randomly generated each time, but is preprended to encrypted cipher text
+            // so that the same Salt and IV values can be used when decrypting.  
+            var saltStringBytes = Generate256BitsOfRandomEntropy();
+            var ivStringBytes = Generate256BitsOfRandomEntropy();
+            using (var password = new Rfc2898DeriveBytes(passPhrase, saltStringBytes, DerivationIterations))
+            {
+                var keyBytes = password.GetBytes(Keysize / 8);
+                using (var symmetricKey = new RijndaelManaged())
+                {
+                    symmetricKey.BlockSize = 256;
+                    symmetricKey.Mode = CipherMode.CBC;
+                    symmetricKey.Padding = PaddingMode.PKCS7;
+                    using (var encryptor = symmetricKey.CreateEncryptor(keyBytes, ivStringBytes))
+                    {
+                        using (var ofcStream = new FileStream(outputFilePath, FileMode.Create))
+                        {
+                            //32 first bytes are salt bytes
+                            ofcStream.Write(saltStringBytes, 0, saltStringBytes.Length);
+                            //another 32 bytes are IV bytes
+                            ofcStream.Write(ivStringBytes, 0, ivStringBytes.Length);
+
+                            //Then can add another crypted bytes
+                            using (var cryptoStream = new CryptoStream(ofcStream, encryptor, CryptoStreamMode.Write))
+                            {
+                                using (var inputFileStream = new FileStream(inputFilePath, FileMode.Open))
+                                {
+                                    int data;
+                                    while ((data = inputFileStream.ReadByte()) != -1)
+                                        cryptoStream.WriteByte((byte) data);
+
+                                    cryptoStream.FlushFinalBlock();
+                                    ofcStream.Close();
+                                    cryptoStream.Close();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void DecryptFile(string inputFilePath, string outputFilePath, string passPhrase)
+        {
+            using (var inptuFs = new FileStream(inputFilePath, FileMode.Open))
+            {
+                // Get the complete stream of bytes that represent:
+                // [32 bytes of Salt] + [32 bytes of IV] + [n bytes of CipherText]
+
+                // Get the saltbytes by extracting the first 32 bytes .
+                byte[] saltStringBytes = new byte[Keysize / 8];
+                inptuFs.Read(saltStringBytes, 0, saltStringBytes.Length);
+
+                // Get the IV bytes by extracting the next 32 bytes .
+                byte[] ivStringBytes = new byte[Keysize / 8];
+                inptuFs.Read(ivStringBytes, 0, ivStringBytes.Length);
+
+                using (var password = new Rfc2898DeriveBytes(passPhrase, saltStringBytes, DerivationIterations))
+                {
+                    var keyBytes = password.GetBytes(Keysize / 8);
+                    using (var symmetricKey = new RijndaelManaged())
+                    {
+                        symmetricKey.BlockSize = 256;
+                        symmetricKey.Mode = CipherMode.CBC;
+                        symmetricKey.Padding = PaddingMode.PKCS7;
+                        using (var decryptor = symmetricKey.CreateDecryptor(keyBytes, ivStringBytes))
+                        {
+                            using (var fileOutputStream = new FileStream(outputFilePath, FileMode.Create))
+                            {
+                                using (var cryptoStream = new CryptoStream(inptuFs, decryptor, CryptoStreamMode.Read))
+                                {
+                                    int data;
+                                    while ((data = cryptoStream.ReadByte()) != -1)
+                                    {
+                                        fileOutputStream.WriteByte((byte) data);
+                                    }
+                                    fileOutputStream.Close();
+                                    cryptoStream.Close();
+                                    inptuFs.Close();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
 
         private static byte[] Generate256BitsOfRandomEntropy()
         {

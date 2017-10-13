@@ -1,0 +1,55 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.Text;
+
+namespace ChatService
+{
+    public class FileService : IFileService
+    {
+        private string _temp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "temp_files");
+
+        public FileService()
+        {
+            if (!Directory.Exists(_temp))
+            {
+                Directory.CreateDirectory(_temp);
+            }
+        }
+
+        public Stream DownloadFile(string fileName)
+        {
+            string filePath = Path.Combine(_temp, fileName);
+            if (!File.Exists(filePath)) return null;
+            Stream r;
+            try
+            {
+                r = File.OpenRead(filePath);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+            return r;
+        }
+
+        public string UploadFile(Stream file)
+        {
+            if (file == null) return null;
+
+            var name = $"{Guid.NewGuid():N}.tmp";
+            string filePath = Path.Combine(_temp,name);
+
+            if (File.Exists(filePath)) File.Delete(filePath);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+            {
+                file.CopyTo(fileStream);
+            }
+            return name;
+        }
+    }
+}

@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <TextBox x:Name="InputBox" Margin="10,0,90,10" TextWrapping="Wrap" Height="23" VerticalAlignment="Bottom" KeyUp="InputBox_KeyUp" />
+        <TextBox x:Name="InputBox" Margin="10,0,126,10" TextWrapping="Wrap" Height="23" VerticalAlignment="Bottom" KeyUp="InputBox_KeyUp" />
         <Button x:Name="SendButton" Content="Send" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Height="23" Click="SendButton_Click"/>
         <RichTextBox x:Name="ChatBox" Margin="10,10,10,38">
             <FlowDocument>
@@ -16,6 +16,7 @@
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
+        <Button Content="File" Margin="0,0,90,11" HorizontalAlignment="Right" Width="31" Height="22" VerticalAlignment="Bottom" Click="Button_Click"/>
 
     </Grid>
 </Window>

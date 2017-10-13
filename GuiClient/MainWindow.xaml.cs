@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +15,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Helpers;
+using Microsoft.Win32;
+using Path = System.IO.Path;
 
 namespace GuiClient
 {
@@ -34,7 +40,38 @@ namespace GuiClient
             Client = new Client(name, passphrase);
             Client.MessageIncomeEvent += ClientOnMessageIncomeEvent;
             Client.NewUserJoinedEvent += ClientOnNewUserJoinedEvent;
+            Client.FileIncomeEvent += ClientOnFileIncomeEvent;
             ChatBox.IsReadOnly = true;
+
+
+            FocusManager.SetFocusedElement(this, InputBox);
+        }
+
+        private async void ClientOnFileIncomeEvent(int userId, string username, string originalFileName,
+            string cryptedfileName)
+        {
+
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "CryptedChatTemp");
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+
+
+            var cryptedPath = Path.Combine(path, cryptedfileName);
+            path = Path.Combine(path, originalFileName);
+            var file = await Client.DownloadFile(cryptedfileName);
+
+            //TODO decrypt file here !
+            
+            if (File.Exists(path)) File.Delete(path);
+
+            using (var fileStream = new FileStream(cryptedPath, FileMode.Create, FileAccess.Write))
+            {
+                file.CopyTo(fileStream);
+            }
+
+            Cipher.DecryptFile(cryptedPath,path,Client.PassPhrase);
+            File.Delete(cryptedPath);
+            ChatBox.AppendHyperLink(username, originalFileName, _userColors[userId]);
         }
 
         private string ShowDialogBoxFor(string label)
@@ -87,6 +124,31 @@ namespace GuiClient
         private void InputBox_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter) SendMessage();
+        }
+
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            
+
+            var fileDialog = new OpenFileDialog();
+            fileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            var result = fileDialog.ShowDialog();
+            if (result.HasValue && result.Value)
+            {
+                var fi = new FileInfo(fileDialog.FileName);
+                if (!File.Exists(fi.FullName)) return;
+
+                var cryptedTempFilePath = Path.Combine(fi.DirectoryName, "Crypted" + fi.Name);
+
+                Cipher.EncryptFile(fi.FullName,cryptedTempFilePath,Client.PassPhrase);
+                var fs = File.OpenRead(cryptedTempFilePath);
+                
+                var cryptedFileName = await Client.UploadFile(fs);
+                Client.SendFileToConnected(fi.Name, cryptedFileName);
+                fs.Close();
+                File.Delete(cryptedFileName);
+            }
         }
     }
 }
