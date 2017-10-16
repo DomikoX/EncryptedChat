@@ -5,11 +5,11 @@ namespace ChatService
     public class User
     {
         public IClient Callback { get; set; }
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         public List<User> ConnectedUsers { get; set; } = new List<User>();
 
-        public User(IClient callback, int id)
+        public User(IClient callback, string id)
         {
             Callback = callback;
             Id = id;
@@ -18,7 +18,7 @@ namespace ChatService
 
         protected bool Equals(User other)
         {
-            return Equals(Callback, other.Callback) || Id == other.Id;
+            return string.Equals(Id, other.Id) && Equals(ConnectedUsers, other.ConnectedUsers);
         }
 
         public override bool Equals(object obj)
@@ -33,7 +33,7 @@ namespace ChatService
         {
             unchecked
             {
-                return ((Callback != null ? Callback.GetHashCode() : 0) * 397) ^ Id;
+                return ((Id != null ? Id.GetHashCode() : 0) * 397) ^ (ConnectedUsers != null ? ConnectedUsers.GetHashCode() : 0);
             }
         }
     }

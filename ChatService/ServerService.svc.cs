@@ -11,8 +11,6 @@ namespace ChatService
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public class ServerService : IServer
     {
-        private static int NO_ID = -1;
-        private int _ids = 0;
         private static IClient ClientCallback => OperationContext.Current.GetCallbackChannel<IClient>();
         public List<User> AllConnectedUsers { get; set; } = new List<User>();
 
@@ -31,9 +29,9 @@ namespace ChatService
             }
         }
 
-        public int Register(string name)
+        public string Register(string name)
         {
-            var newUser = new User(OperationContext.Current.GetCallbackChannel<IClient>(), ++_ids);
+            var newUser = new User(OperationContext.Current.GetCallbackChannel<IClient>(), Guid.NewGuid().ToString("N"));
             //try to remove if already exist (etc. in the case user try to connect from the same machine  and his unregister was't made properly) 
             AllConnectedUsers.Remove(newUser);
 
@@ -44,7 +42,7 @@ namespace ChatService
         public void Unregister()
         {
             //doesn't matter on user Id, in case of comparing users, callback is enought
-            var newUser = new User(ClientCallback, NO_ID);
+            var newUser = new User(ClientCallback, "");
             AllConnectedUsers.Remove(newUser);
         }
 
@@ -78,7 +76,7 @@ namespace ChatService
         }
 
 
-        public void SendMessage(int userId, string cryptedMessage)
+        public void SendMessage(string userId, string cryptedMessage)
         {
             try
             {
@@ -91,7 +89,7 @@ namespace ChatService
             }
         }
 
-        public void ConnectWithUser(int userId)
+        public void ConnectWithUser(string userId)
         {
             try
             {

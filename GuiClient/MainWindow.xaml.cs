@@ -27,7 +27,7 @@ namespace GuiClient
     public partial class MainWindow : Window
     {
         private List<Color> _colors = GenerateListOfColors();
-        private Dictionary<int, Color> _userColors = new Dictionary<int, Color>();
+        private Dictionary<string, Color> _userColors = new Dictionary<string, Color>();
         public Client Client { get; private set; }
 
         public MainWindow()
@@ -47,7 +47,7 @@ namespace GuiClient
             FocusManager.SetFocusedElement(this, InputBox);
         }
 
-        private async void ClientOnFileIncomeEvent(int userId, string username, string originalFileName,
+        private async void ClientOnFileIncomeEvent(string userId, string username, string originalFileName,
             string cryptedfileName)
         {
 
@@ -81,7 +81,7 @@ namespace GuiClient
             return input.TextBox.Text;
         }
 
-        private void ClientOnNewUserJoinedEvent(int userId)
+        private void ClientOnNewUserJoinedEvent(string userId)
         {
             if (_colors.Count == 0)
             {
@@ -103,7 +103,7 @@ namespace GuiClient
             }.ToList();
         }
 
-        private void ClientOnMessageIncomeEvent(int userId, string username, string msg)
+        private void ClientOnMessageIncomeEvent(string userId, string username, string msg)
         {
             if (!_userColors.ContainsKey(userId)) ClientOnNewUserJoinedEvent(userId);
             ChatBox.AppendText(username, msg, _userColors[userId]);

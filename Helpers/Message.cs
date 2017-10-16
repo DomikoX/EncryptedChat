@@ -11,10 +11,9 @@ namespace Helpers
         public MessageType Type { get; set; }
         public string SenderUserName { get; set; }
 
-        public int SenderUserId { get; set; }
-
-        // -1 - no specific receiver. message is for all users
-        public int ReceiverUserId { get; set; } = -1;
+        public string SenderUserId { get; set; }
+        
+        public string ReceiverUserId { get; set; }
 
         public string Content { get; set; }
         public string AdditionalData { get; set; }

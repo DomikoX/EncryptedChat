@@ -18,7 +18,7 @@ namespace ChatService
         /// <param name="name"></param>
         /// <returns></returns>
         [OperationContract]
-        int Register(string name);
+        string Register(string name);
 
         /// <summary>
         /// Remove me from list of actual connected users
@@ -48,14 +48,14 @@ namespace ChatService
         /// <param name="userId"></param>
         /// <param name="cryptedMessage"></param>
         [OperationContract(IsOneWay = true)]
-        void SendMessage(int userId, string cryptedMessage);
+        void SendMessage(string userId, string cryptedMessage);
 
         /// <summary>
         /// Connect me with this user. Since this moment this user will get all my messages sended by <see cref="BroadcastMessageToConnectedUsers"/>
         /// </summary>
         /// <param name="userId"></param>
         [OperationContract(IsOneWay = true)]
-        void ConnectWithUser(int userId);
+        void ConnectWithUser(string userId);
         
     }
     

@@ -12,10 +12,10 @@ namespace ConsoleClient
     {
         public string Name { get; set; }
         public string PassPhrase { get; set; }
-        private int _id;
+        private string _id;
         private IServer _channel;
         private List<ConsoleColor> _colors = new List<ConsoleColor>();
-        private Dictionary<int, ConsoleColor> _userColors = new Dictionary<int, ConsoleColor>();
+        private Dictionary<string, ConsoleColor> _userColors = new Dictionary<string, ConsoleColor>();
 
 
         public Client(string name, string passPhrase)
@@ -75,7 +75,7 @@ namespace ConsoleClient
             _channel.BroadcastMessageToConnectedUsers(Cipher.Encrypt(jsonMsg, PassPhrase));
         }
 
-        private void SendJoinMessage(int id)
+        private void SendJoinMessage(string id)
         {
             var jsonMsg = Message.Serialize(new Message()
             {
@@ -131,7 +131,7 @@ namespace ConsoleClient
             }
         }
 
-        private void ConsoleWriteLine(int userId, string username, string msg)
+        private void ConsoleWriteLine(string userId, string username, string msg)
         {
             bool typing = false;
             if(Console.CursorLeft > $"<{Name}>:".Length+1)
@@ -163,7 +163,7 @@ namespace ConsoleClient
             Console.SetCursorPosition(0, currentLineCursor);
         }
 
-        private void SetUserColor(int userId)
+        private void SetUserColor(string userId)
         {
             if (_colors.Count == 0)
             {

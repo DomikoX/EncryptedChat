@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GuiClient"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Encrypted Chat" Height="350" Width="525">
     <Grid>
         <TextBox x:Name="InputBox" Margin="10,0,126,10" TextWrapping="Wrap" Height="23" VerticalAlignment="Bottom" KeyUp="InputBox_KeyUp" />
         <Button x:Name="SendButton" Content="Send" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Height="23" Click="SendButton_Click"/>

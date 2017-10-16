@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GuiClient"
         mc:Ignorable="d"
-        Title="UserInput" Height="131" Width="206">
+        Title="" Height="131" Width="206">
     <Grid>
         <Label x:Name="Label" Content="Input property" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="TextBox" Margin="10,0,10,35" TextWrapping="Wrap" Height="22" VerticalAlignment="Bottom"/>

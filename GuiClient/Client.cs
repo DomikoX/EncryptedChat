@@ -13,19 +13,19 @@ namespace GuiClient
     {
         public string Name { get; set; }
         public string PassPhrase { get; set; }
-        private int _id;
+        private string _id;
         private IServer _channel;
         private IFileService _fileChannel;
 
-        public delegate void MessageIcomeHandler(int userId, string username, string msg);
+        public delegate void MessageIcomeHandler(string userId, string username, string msg);
 
         public event MessageIcomeHandler MessageIncomeEvent;
 
-        public delegate void FileIcomeHandler(int userId, string username, string originalFileName, string cryptedfileName);
+        public delegate void FileIcomeHandler(string userId, string username, string originalFileName, string cryptedfileName);
 
         public event FileIcomeHandler FileIncomeEvent;
 
-        public delegate void NewUserJoinedHandler(int userId);
+        public delegate void NewUserJoinedHandler(string userId);
 
         public event NewUserJoinedHandler NewUserJoinedEvent;
 
@@ -126,7 +126,7 @@ namespace GuiClient
             _channel.BroadcastMessageToConnectedUsers(Cipher.Encrypt(jsonMsg, PassPhrase));
         }
 
-        private void SendJoinMessage(int id)
+        private void SendJoinMessage(string id)
         {
             var jsonMsg = Message.Serialize(new Message()
             {
