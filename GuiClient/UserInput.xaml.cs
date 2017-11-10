@@ -10,16 +10,21 @@ namespace GuiClient
     /// </summary>
     public partial class UserInput : Window
     {
-        public UserInput(string inputLabel)
+        public UserInput()
         {
             InitializeComponent();
-            Label.Content = inputLabel;
-            FocusManager.SetFocusedElement(this, TextBox);
+            FocusManager.SetFocusedElement(this, NicknameBox);
             Closing += (sender, args) =>
             {
-                if (string.IsNullOrEmpty(TextBox.Text.Trim())) args.Cancel = true;
+                if (string.IsNullOrEmpty(NicknameBox.Text.Trim()) || string.IsNullOrEmpty(PassphraseBox.Password.Trim())) args.Cancel = true;
             };
-            TextBox.KeyUp += (sender, args) =>
+
+            NicknameBox.KeyUp += (sender, args) =>
+            {
+                if (args.Key == Key.Enter) FocusManager.SetFocusedElement(this,PassphraseBox);
+            };
+
+            PassphraseBox.KeyUp += (sender, args) =>
             {
                 if (args.Key == Key.Enter) Button_Click(null, null);
             };
@@ -27,7 +32,8 @@ namespace GuiClient
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(TextBox.Text.Trim())) return;
+            if (string.IsNullOrEmpty(NicknameBox.Text.Trim()) ||
+                string.IsNullOrEmpty(PassphraseBox.Password.Trim())) return;
             Close();
         }
     }

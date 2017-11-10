@@ -18,15 +18,12 @@ namespace GuiClient
         private IFileService _fileChannel;
 
         public delegate void MessageIcomeHandler(string userId, string username, string msg);
-
         public event MessageIcomeHandler MessageIncomeEvent;
 
         public delegate void FileIcomeHandler(string userId, string username, string originalFileName, string cryptedfileName);
-
         public event FileIcomeHandler FileIncomeEvent;
 
         public delegate void NewUserJoinedHandler(string userId);
-
         public event NewUserJoinedHandler NewUserJoinedEvent;
 
 

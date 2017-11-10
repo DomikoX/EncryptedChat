@@ -5,12 +5,14 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
+using System.Threading;
 
 namespace ChatService
 {
     public class FileService : IFileService
     {
         private string _temp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "temp_files");
+        private int _timeToDelete = 30 * 60 * 100;
 
         public FileService()
         {
@@ -41,7 +43,7 @@ namespace ChatService
             if (file == null) return null;
 
             var name = $"{Guid.NewGuid():N}.tmp";
-            string filePath = Path.Combine(_temp,name);
+            string filePath = Path.Combine(_temp, name);
 
             if (File.Exists(filePath)) File.Delete(filePath);
 
@@ -49,6 +51,15 @@ namespace ChatService
             {
                 file.CopyTo(fileStream);
             }
+
+            Timer timer = null;
+            timer = new Timer(state =>
+            {
+                if (File.Exists(filePath)) File.Delete(filePath);
+                timer.Dispose();
+                //Set timer to delete uploaded file after 30 minutes
+            }, null, _timeToDelete, Timeout.Infinite);
+            
             return name;
         }
     }

@@ -1,22 +1,12 @@
-﻿using System;
+﻿using Helpers;
+using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Helpers;
-using Microsoft.Win32;
 using Path = System.IO.Path;
 
 namespace GuiClient
@@ -34,15 +24,17 @@ namespace GuiClient
         {
             InitializeComponent();
 
-            var name = ShowDialogBoxFor("Name").Trim();
-            var passphrase = ShowDialogBoxFor("Passphrase").Trim();
+            var input = new UserInput();
+            input.ShowDialog();
+
+            var name = input.NicknameBox.Text.Trim();
+            var passphrase = input.PassphraseBox.Password.Trim();
 
             Client = new Client(name, passphrase);
             Client.MessageIncomeEvent += ClientOnMessageIncomeEvent;
             Client.NewUserJoinedEvent += ClientOnNewUserJoinedEvent;
             Client.FileIncomeEvent += ClientOnFileIncomeEvent;
             ChatBox.IsReadOnly = true;
-
 
             FocusManager.SetFocusedElement(this, InputBox);
         }
@@ -55,12 +47,9 @@ namespace GuiClient
                 "CryptedChatTemp");
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
-
             var cryptedPath = Path.Combine(path, cryptedfileName);
             path = Path.Combine(path, originalFileName);
             var file = await Client.DownloadFile(cryptedfileName);
-
-            //TODO decrypt file here !
             
             if (File.Exists(path)) File.Delete(path);
 
@@ -73,14 +62,7 @@ namespace GuiClient
             File.Delete(cryptedPath);
             ChatBox.AppendHyperLink(username, originalFileName, _userColors[userId]);
         }
-
-        private string ShowDialogBoxFor(string label)
-        {
-            var input = new UserInput(label);
-            input.ShowDialog();
-            return input.TextBox.Text;
-        }
-
+        
         private void ClientOnNewUserJoinedEvent(string userId)
         {
             if (_colors.Count == 0)
@@ -128,8 +110,6 @@ namespace GuiClient
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            
-
             var fileDialog = new OpenFileDialog();
             fileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 

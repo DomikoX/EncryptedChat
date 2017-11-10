@@ -10,11 +10,8 @@ namespace Helpers
     {
         public MessageType Type { get; set; }
         public string SenderUserName { get; set; }
-
         public string SenderUserId { get; set; }
-        
         public string ReceiverUserId { get; set; }
-
         public string Content { get; set; }
         public string AdditionalData { get; set; }
 

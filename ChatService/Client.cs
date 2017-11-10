@@ -2,21 +2,21 @@
 
 namespace ChatService
 {
-    public class User
+    public class Client
     {
         public IClient Callback { get; set; }
         public string Id { get; set; }
 
-        public List<User> ConnectedUsers { get; set; } = new List<User>();
+        public List<Client> ConnectedUsers { get; set; } = new List<Client>();
 
-        public User(IClient callback, string id)
+        public Client(IClient callback, string id)
         {
             Callback = callback;
             Id = id;
         }
 
 
-        protected bool Equals(User other)
+        protected bool Equals(Client other)
         {
             return string.Equals(Id, other.Id) && Equals(ConnectedUsers, other.ConnectedUsers);
         }
@@ -26,7 +26,7 @@ namespace ChatService
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((User) obj);
+            return Equals((Client) obj);
         }
 
         public override int GetHashCode()

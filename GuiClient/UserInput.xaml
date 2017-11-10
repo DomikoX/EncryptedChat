@@ -5,11 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GuiClient"
         mc:Ignorable="d"
-        Title="" Height="131" Width="206">
+        Title="" Height="182" Width="287">
     <Grid>
-        <Label x:Name="Label" Content="Input property" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="TextBox" Margin="10,0,10,35" TextWrapping="Wrap" Height="22" VerticalAlignment="Bottom"/>
+        <Label x:Name="Label" Content="Nickname" Margin="10,0,0,115" Height="26" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="63"/>
+        <TextBox x:Name="NicknameBox" Margin="10,0,10,93" TextWrapping="Wrap" Height="22" VerticalAlignment="Bottom"/>
         <Button x:Name="ButtonOk" Content="Ok" Margin="0,0,10,10" HorizontalAlignment="Right" Width="75" Height="21" VerticalAlignment="Bottom" Click="Button_Click"/>
+        <Label Content="Passphrase" HorizontalAlignment="Left" Margin="10,0,0,62" Height="26" VerticalAlignment="Bottom"/>
+        <PasswordBox x:Name="PassphraseBox" Margin="10,0,10,40" Height="22" VerticalAlignment="Bottom"/>
 
     </Grid>
 </Window>

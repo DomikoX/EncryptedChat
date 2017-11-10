@@ -12,9 +12,10 @@ namespace ChatService
     public class ServerService : IServer
     {
         private static IClient ClientCallback => OperationContext.Current.GetCallbackChannel<IClient>();
-        public List<User> AllConnectedUsers { get; set; } = new List<User>();
+        public List<Client> AllConnectedUsers { get; set; } = new List<Client>();
+     
 
-        private User Me
+        private Client Me
         {
             get
             {
@@ -31,7 +32,7 @@ namespace ChatService
 
         public string Register(string name)
         {
-            var newUser = new User(OperationContext.Current.GetCallbackChannel<IClient>(), Guid.NewGuid().ToString("N"));
+            var newUser = new Client(ClientCallback, Guid.NewGuid().ToString("N"));
             //try to remove if already exist (etc. in the case user try to connect from the same machine  and his unregister was't made properly) 
             AllConnectedUsers.Remove(newUser);
 
@@ -42,7 +43,7 @@ namespace ChatService
         public void Unregister()
         {
             //doesn't matter on user Id, in case of comparing users, callback is enought
-            var newUser = new User(ClientCallback, "");
+            var newUser = new Client(ClientCallback, "");
             AllConnectedUsers.Remove(newUser);
         }
 
@@ -56,7 +57,7 @@ namespace ChatService
             BrodcastMessage(Me?.ConnectedUsers, cryptedMessage);
         }
 
-        private void BrodcastMessage(List<User> listOfUsers, string cryptedMessage)
+        private void BrodcastMessage(List<Client> listOfUsers, string cryptedMessage)
         {
             if (listOfUsers == null) return;
 
