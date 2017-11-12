@@ -28,7 +28,7 @@ namespace Helpers
                 using (var symmetricKey = new RijndaelManaged())
                 {
                     symmetricKey.BlockSize = 256;
-                    symmetricKey.Mode = CipherMode.CBC;
+                    symmetricKey.Mode = CipherMode.CBC; 
                     symmetricKey.Padding = PaddingMode.PKCS7;
                     using (var encryptor = symmetricKey.CreateEncryptor(keyBytes, ivStringBytes))
                     {

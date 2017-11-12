@@ -42,7 +42,6 @@ namespace GuiClient
         private async void ClientOnFileIncomeEvent(string userId, string username, string originalFileName,
             string cryptedfileName)
         {
-
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 "CryptedChatTemp");
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);

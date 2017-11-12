@@ -17,6 +17,7 @@ namespace ConsoleClient
         private List<ConsoleColor> _colors = new List<ConsoleColor>();
         private Dictionary<string, ConsoleColor> _userColors = new Dictionary<string, ConsoleColor>();
 
+        private string _address = "net.tcp://localhost/";
 
         public Client(string name, string passPhrase)
         {
@@ -24,7 +25,7 @@ namespace ConsoleClient
             PassPhrase = passPhrase;
 
             DuplexChannelFactory<IServer> channelFactory = new DuplexChannelFactory<IServer>(this, new NetTcpBinding() { Security = new NetTcpSecurity() { Mode = SecurityMode.None } },
-                new EndpointAddress("net.tcp://192.168.1.75:3100/CryptedChat"));
+                new EndpointAddress(_address +"CryptedChat"));
             _channel = channelFactory.CreateChannel();
 
             _id = _channel.Register(Name);

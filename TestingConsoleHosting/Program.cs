@@ -10,6 +10,8 @@ namespace TestingConsoleHosting
 {
     class Program
     {
+
+        private static string _address = "net.tcp://localhost/";
         static void Main(string[] args)
         {
             HostServer();
@@ -19,7 +21,7 @@ namespace TestingConsoleHosting
 
         private static void HostFileServer()
         {
-            ServiceHost host = new ServiceHost(typeof(FileService), new Uri("net.tcp://192.168.1.75:3101"));
+            ServiceHost host = new ServiceHost(typeof(FileService), new Uri(_address));
             host.AddServiceEndpoint(typeof(IFileService), new NetTcpBinding()
             {
                 Security = new NetTcpSecurity()
@@ -36,12 +38,12 @@ namespace TestingConsoleHosting
             }, "CryptedChatFiles");
 
             host.Open();
-            Console.WriteLine("FileService is ready .... Listenign on: net.tcp://192.168.1.75:3101/CryptedChatFiles");
+            Console.WriteLine($"FileService is ready .... Listenign on: {_address}/CryptedChatFiles");
         }
 
         private static void HostServer()
         {
-            ServiceHost host = new ServiceHost(typeof(ServerService), new Uri("net.tcp://192.168.1.75:3100"));
+            ServiceHost host = new ServiceHost(typeof(ServerService), new Uri(_address));
             host.AddServiceEndpoint(typeof(IServer), new NetTcpBinding()
             {
                 Security = new NetTcpSecurity()
@@ -51,7 +53,7 @@ namespace TestingConsoleHosting
             }, "CryptedChat");
 
             host.Open();
-            Console.WriteLine("Service is ready .... Listenign on: net.tcp://192.168.1.75:3100/CryptedChat");
+            Console.WriteLine($"Service is ready .... Listenign on: {_address}/CryptedChat");
         }
     }
 }

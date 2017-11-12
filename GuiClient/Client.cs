@@ -16,6 +16,7 @@ namespace GuiClient
         private string _id;
         private IServer _channel;
         private IFileService _fileChannel;
+        private string _address = "net.tcp://localhost/";
 
         public delegate void MessageIcomeHandler(string userId, string username, string msg);
         public event MessageIcomeHandler MessageIncomeEvent;
@@ -37,7 +38,7 @@ namespace GuiClient
                 {
                     Security = new NetTcpSecurity() {Mode = SecurityMode.None},
                 },
-                new EndpointAddress("net.tcp://192.168.1.75:3100/CryptedChat"));
+                new EndpointAddress(_address + "CryptedChat"));
             _channel = channelFactory.CreateChannel();
 
 
@@ -54,7 +55,7 @@ namespace GuiClient
                 OpenTimeout = new TimeSpan(0, 1, 0),
                 ReceiveTimeout = new TimeSpan(0, 30, 0),
                 SendTimeout = new TimeSpan(0, 30, 0)
-            },new EndpointAddress("net.tcp://192.168.1.75:3101/CryptedChatFiles"));
+            },new EndpointAddress(_address + "CryptedChatFiles"));
             _fileChannel = fileChannelFactory.CreateChannel();
 
 
@@ -108,7 +109,7 @@ namespace GuiClient
                 AdditionalData = cryptedFileName,
             });
             _channel.BroadcastMessageToConnectedUsers(Cipher.Encrypt(jsonMsg, PassPhrase));
-            MessageIncomeEvent?.Invoke(_id, Name, $"You sended file: {originalFileName}");
+            MessageIncomeEvent?.Invoke(_id, Name, $"You sent file: {originalFileName}");
         }
 
 
